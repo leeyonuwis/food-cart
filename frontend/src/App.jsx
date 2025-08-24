@@ -15,6 +15,9 @@ import DashboardHome from "./pages/dashboard/DashboardHome";
 import OrderPlaced from "./pages/dashboard/orders/OrderPlaced";
 import PaymentHistory from "./pages/dashboard/PaymentHistory";
 import ScrollToTop from "./ScrollToTop";
+import AdminRoute from "./routes/AdminRoute";
+import AddRecipePage from "./pages/admin/AddRecipePage";
+import EditRecipePage from "./pages/admin/EditRecipePage";
 
 const App = () => {
   return (
@@ -28,20 +31,40 @@ const App = () => {
         </Route>
 
         <Route
-          path="dashboard"
-          element={
-            <PrivateRoute>
-              <DashboardLayout />
-            </PrivateRoute>
-          }
-        >
-          <Route index element={<DashboardHome />} />
-          <Route path="orders" element={<Orders />} />
-          <Route path="order-placed/:orderId" element={<OrderPlaced />} />
-          <Route path="cart" element={<Cart />} />
-          <Route path="payments" element={<Payments />} />
-          <Route path="payment-history" element={<PaymentHistory />} />
-        </Route>
+  path="dashboard"
+  element={
+    <PrivateRoute>
+      <DashboardLayout />
+    </PrivateRoute>
+  }
+>
+  <Route index element={<DashboardHome />} />
+  <Route path="orders" element={<Orders />} />
+  <Route path="order-placed/:orderId" element={<OrderPlaced />} />
+  <Route path="cart" element={<Cart />} />
+  <Route path="payments" element={<Payments />} />
+  <Route path="payment-history" element={<PaymentHistory />} />
+
+  {/* Admin-only nested route */}
+  <Route
+    path="admin/add-recipe"
+    element={
+      <AdminRoute>
+        <AddRecipePage />
+      </AdminRoute>
+    }
+  />
+
+  <Route
+  path="admin/edit-recipe/:id"
+  element={
+    <AdminRoute>
+      <EditRecipePage />
+    </AdminRoute>
+  }
+/>
+</Route>
+
       </Routes>
       <Toaster position="top-right" reverseOrder={false} />
     </BrowserRouter>

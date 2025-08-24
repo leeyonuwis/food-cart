@@ -8,22 +8,33 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  UtensilsCrossed, // icon for Add Recipe
 } from "lucide-react";
 import { useState } from "react";
 import { handleLogout } from "../hooks/useLogout";
 
 export default function DashboardLayout() {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(true); // Sidebar open/close
   const [isMobileOpen, setIsMobileOpen] = useState(false); // Mobile sidebar
 
+  // default nav links for all users
   const navLinks = [
     { to: "/dashboard", icon: Home, label: "Home", end: true },
     { to: "/dashboard/orders", icon: ShoppingBag, label: "Orders" },
     { to: "/dashboard/cart", icon: ShoppingCart, label: "Cart" },
     { to: "/dashboard/payment-history", icon: CreditCard, label: "Payment History" },
   ];
+
+  // If admin, push the extra link
+  if (user?.role === "admin") {
+    navLinks.push({
+      to: "/dashboard/admin/add-recipe",
+      icon: UtensilsCrossed,
+      label: "Add Recipe",
+    });
+  }
 
   return (
     <div className="flex min-h-screen">
@@ -37,13 +48,14 @@ export default function DashboardLayout() {
         `}
       >
         {/* Logo */}
-        <Link to="/" className={`flex items-center ${isOpen ? "gap-2" : "justify-center"} mb-8`}>
+        <Link
+          to="/"
+          className={`flex items-center ${isOpen ? "gap-2" : "justify-center"} mb-8`}
+        >
           <div className="bg-green-500 p-2 rounded-full">
             <ShoppingCart className="w-5 h-5 text-white" />
           </div>
-          {isOpen && (
-            <span className="text-xl font-bold text-green-600">Food Kart</span>
-          )}
+          {isOpen && <span className="text-xl font-bold text-green-600">Food Kart</span>}
         </Link>
 
         {/* Nav Links */}
@@ -85,11 +97,7 @@ export default function DashboardLayout() {
           onClick={() => setIsOpen(!isOpen)}
           className="hidden md:flex absolute top-1/2 -right-3 transform -translate-y-1/2 bg-gray-800 text-white p-1 rounded-full shadow-lg"
         >
-          {isOpen ? (
-            <ChevronLeft className="h-5 w-5" />
-          ) : (
-            <ChevronRight className="h-5 w-5" />
-          )}
+          {isOpen ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
         </button>
       </aside>
 

@@ -19,7 +19,7 @@ const PrivateRoute = ({ children }) => {
     return <Navigate to="/login" replace />;
   }
 
-  // 🔓 If user exists, render children
+  // If user exists, render children
   return children;
 };
 

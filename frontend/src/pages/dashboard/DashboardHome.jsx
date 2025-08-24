@@ -5,15 +5,18 @@ import { useCartActions } from "../../hooks/useCartActions";
 import { usePagination } from "../../hooks/usePagination";
 import RecipeCard from "../dashboard/receipe-card/RecipeCard";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import axiosInstance from "../../api/axios";
 
 export default function DashboardHome() {
-  const { data: recipes, isLoading: recipesLoading } = useRecipes();
+  const { data: recipes, isLoading: recipesLoading, refetch } = useRecipes();
   const { user } = useAuth();
   const { loadingId, handleAddToCart, recipesWithCartStatus } = useCartActions();
 
   const recipesData = recipesWithCartStatus(recipes) || [];
-
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -41,7 +44,7 @@ export default function DashboardHome() {
   // Update hook's pageSize whenever itemsPerPage changes
   useEffect(() => {
     setPageSize(itemsPerPage);
-    setCurrentPage(1); // reset to first page on screen size change
+    setCurrentPage(1);
   }, [itemsPerPage]);
 
   if (recipesLoading)
@@ -51,14 +54,40 @@ export default function DashboardHome() {
       </div>
     );
 
+  // Handle edit
+  const handleEdit = (recipe) => {
+    navigate(`/dashboard/admin/edit-recipe/${recipe._id}`);
+  };
+
+  // Handle delete
+  const handleDelete = async (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "This will permanently delete the recipe!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await axiosInstance.delete(`/recipes/${id}`);
+          Swal.fire("Deleted!", "Recipe has been removed.", "success");
+          await refetch(); // refresh
+        } catch (err) {
+          Swal.fire("Error!", err.response?.data?.message || "Something went wrong", "error");
+        }
+      }
+    });
+  };
+
   return (
     <div className="px-8">
-      {/* Heading */}
       <h1 className="text-2xl font-semibold mb-6">
         Welcome {user?.name}, explore our latest recipes!
       </h1>
 
-      {/* Recipes Grid */}
       <div className="grid gap-8 grid-cols-[repeat(auto-fit,minmax(250px,1fr))]">
         {currentItems.map((item) => (
           <RecipeCard
@@ -67,14 +96,14 @@ export default function DashboardHome() {
             inCart={item.inCart}
             loadingId={loadingId}
             onAddToCart={handleAddToCart}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
           />
         ))}
       </div>
 
-      {/* Minimalistic Pagination Controls */}
       {totalPages > 1 && (
         <div className="flex justify-center items-center gap-3 mt-8">
-          {/* Prev */}
           <button
             onClick={prevPage}
             disabled={currentPage === 1}
@@ -83,12 +112,10 @@ export default function DashboardHome() {
             ‹
           </button>
 
-          {/* Current Page */}
           <span className="px-3 py-1 rounded-lg text-xs border bg-green-100 text-green-500">
             {currentPage} / {totalPages}
           </span>
 
-          {/* Next */}
           <button
             onClick={nextPage}
             disabled={currentPage === totalPages}

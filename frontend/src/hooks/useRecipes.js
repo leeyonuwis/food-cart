@@ -10,6 +10,8 @@ export const fetchPublicRecipes = async () => {
   return data;
 };
 
+
+
 export const useRecipes = () => {
   return useQuery({
     queryKey: ["recipes"],
