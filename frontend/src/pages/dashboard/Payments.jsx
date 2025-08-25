@@ -27,6 +27,9 @@ export default function PaymentsPage() {
     [cartData]
   );
 
+
+  console.log(stripePromise);
+  
   const totalAmount = useMemo(
     () =>
       items.reduce((sum, item) => sum + item.recipe.price * item.quantity, 0),
@@ -74,7 +77,10 @@ export default function PaymentsPage() {
         </div>
       ) : (
         // Mount Elements AFTER we have clientSecret
-        <Elements stripe={stripePromise} options={{ clientSecret }}>
+        <Elements stripe={stripePromise} options={{
+    clientSecret,
+    appearance: { theme: "stripe" }, // 👈 add this
+  }}>
           <CheckoutForm orderId={orderId} paymentId={paymentId} navigate={navigate} />
         </Elements>
       )}

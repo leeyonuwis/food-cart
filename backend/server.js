@@ -10,6 +10,11 @@ import orderRoutes from "./routes/orderRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import seedRoutes from "./routes/seedRoutes.js";
 
+
+console.log("Stripe key loaded:", process.env.STRIPE_SECRET_KEY ? "yes" : "no");
+if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET is not set");
+if (!process.env.MONGO_URI) throw new Error("MONGO_URI is not set");
+
 connectDB();
 
 const app = express();

@@ -31,6 +31,9 @@ router.post("/pay", authMiddleware, async (req, res) => {
       0
     );
 
+    console.log("🛒 Items received:", items);
+    console.log("💰 Total amount (in INR):", totalAmount);
+
     // Create order (pending)
     const order = await Order.create({
       user: req.user._id,
@@ -52,6 +55,9 @@ router.post("/pay", authMiddleware, async (req, res) => {
       "inr"
     );
 
+    console.log("✅ PaymentIntent created:", paymentIntent.id);
+    console.log("🔑 Client secret:", paymentIntent.client_secret);
+
     // Create payment record (pending)
     const payment = await Payment.create({
       user: req.user._id,
@@ -60,16 +66,20 @@ router.post("/pay", authMiddleware, async (req, res) => {
       status: "pending",
     });
 
+    // Extra: log what you’re sending back to frontend
+    console.log("📦 Sending response with clientSecret:", paymentIntent.client_secret);
+
     res.status(200).json({
       clientSecret: paymentIntent.client_secret,
       order,
       payment,
     });
   } catch (err) {
-    console.error(" Payment error:", err);
+    console.error("❌ Payment error:", err);
     res.status(500).json({ message: "Payment failed", error: err.message });
   }
 });
+
 
 /**
  * STEP 2: Confirm payment success (called from frontend after Stripe confirmation)
